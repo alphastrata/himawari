@@ -11,10 +11,7 @@ himawari
 [himawari](https://himawari8.nict.go.jp/) is a Japanese satellite for weather monitoring, it takes an image of the full earth's disc every ten minutes, and has done so since 2015.
 The highest available resolution of the tiles the disc image made up of is 550 by 550px, so when you stitch all 400 images together to make a full disc you get a whopping 11000 by 11000px, a 121MP image. 
 
-A complete day's worth of discs is about ~11.5GB...
- <p align="center">
-<img src="https://imgur.com/a/TAjJ1mG" alt="17:30 September 3rd 2018" width="550"/>
-</p>
+A complete day's worth of discs is about ~11.5GB..."https://imgur.com/a/TAjJ1mG", you can see the example `full_disc_example.png` from this repo.
 
 ## Requirements:
 1. `python3, opencv-python, tqdm, numpy, PIL, golang, progressbar/v3, gocv` [gocv](https://github.com/hybridgroup/gocv
