@@ -20,7 +20,7 @@ import (
 //        USER INPUT
 //=============================================
 // parses the arguments passed to himarawi which become the date and time to fetch
-func parse_params_from_sysargs() UserInput {
+func parseParamsFromSYSArgs() UserInput {
 	args := os.Args
 	fmt.Println(args)
 	if len(args) != 3 {
@@ -69,7 +69,7 @@ func exists(filename string) bool {
 }
 
 // builds the filename for the saved tiles
-func build_tile_filename(url, sixnum, ymd string) string {
+func buildTileFilename(url, sixnum, ymd string) string {
 	url_array := strings.Split(url, "/")
 
 	filename := (url_array[len(url_array)-1])
@@ -82,14 +82,14 @@ func build_tile_filename(url, sixnum, ymd string) string {
 // helper function to count the number of tiles successfully downloaded,
 // useful for when you're resuming or going back over a range that may be
 // incomplete.
-func count_tiles(folders Folders) int {
+func countTiles(folders Folders) int {
 	files, _ := filepath.Glob(folders.tiles + "/*")
 	return len(files)
 }
 
 // creates the directories stucture for the tiles and the complete disc images,
 // important because keeping files organised is important
-func setup_dirs(file_ymd string, sixnum uint) Folders {
+func setupDirs(file_ymd string, sixnum uint) Folders {
 	tiles := fmt.Sprintf("tiles/%s/%06d", file_ymd, sixnum)
 	completed := fmt.Sprintf("completed/%s/", file_ymd)
 	if !exists(tiles) {
@@ -105,7 +105,7 @@ func setup_dirs(file_ymd string, sixnum uint) Folders {
 //=============================================
 //        URLS
 //=============================================
-func download_from_url(url string, filename string, wg *sync.WaitGroup) {
+func downloadFromURL(url string, filename string, wg *sync.WaitGroup) {
 	defer wg.Done() // ensures the corouties won't race
 
 	response, err := http.Get(url)
@@ -132,20 +132,20 @@ func download_from_url(url string, filename string, wg *sync.WaitGroup) {
 }
 
 // builds the url for download_from_url()
-func url_builder(base, d_value, ymd, sixnum string, row, col int) string {
+func URLBuilder(base, d_value, ymd, sixnum string, row, col int) string {
 	url := fmt.Sprintf("%s%sd/550/%s/%s_%d_%d.png", base, d_value, ymd, sixnum, col, row)
 	return url
 }
 
 // builds the ymd string for the urls
-func ymd_builder(y, m, d uint) string {
+func ymdBuilder(y, m, d uint) string {
 	return fmt.Sprintf("%d/%02d/%02d", y, m, d)
 }
 
 //=============================================
 //        TILES
 //=============================================
-func execute_tiles(file_ymd, url_ymd, d_value, base string, sixnum string) {
+func executeTiles(file_ymd, url_ymd, d_value, base string, sixnum string) {
 	bar := progressbar.NewOptions(400,
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetPredictTime(true),
@@ -165,42 +165,41 @@ func execute_tiles(file_ymd, url_ymd, d_value, base string, sixnum string) {
 	ROWMAX := 19
 	for row := 0; row <= ROWMAX; row++ {
 		for col := 0; col <= COLMAX; col++ {
-			url := url_builder(base, d_value, url_ymd, sixnum, row, col)
-			filename := build_tile_filename(url, sixnum, file_ymd)
+			url := URLBuilder(base, d_value, url_ymd, sixnum, row, col)
+			filename := buildTileFilename(url, sixnum, file_ymd)
 			if !exists(filename) {
 				wg.Add(1)
-				go download_from_url(url, filename, wg)
+				go downloadFromURL(url, filename, wg)
 			}
 			bar.Add(1)
 		}
-		// wg.Wait()
 	}
 	wg.Wait()
 	bar.Finish()
 }
 
 // fetch/download the tiles, from the built urls, for the date and time specified
-func fetch_tiles_helper(year, month, day, sixnum uint) Folders {
+func fetchTileHelper(year, month, day, sixnum uint) Folders {
 	d_value := "20"
-	url_ymd := ymd_builder(year, month, day)
+	url_ymd := ymdBuilder(year, month, day)
 	file_ymd := strings.ReplaceAll(url_ymd, "/", "")
 	base := "https://himawari8.nict.go.jp/img/D531106/"
 
 	hhmmdd := fmt.Sprintf("%06d", sixnum)
 
-	folders := setup_dirs(file_ymd, sixnum)
+	folders := setupDirs(file_ymd, sixnum)
 
-	execute_tiles(file_ymd, url_ymd, d_value, base, hhmmdd)
+	executeTiles(file_ymd, url_ymd, d_value, base, hhmmdd)
 	return folders
 }
 
 // Helper function to start the scraping process.
 func scrape(year, month, day, hhmmss uint) bool {
 
-	folders := fetch_tiles_helper(year, month, day, hhmmss)
+	folders := fetchTileHelper(year, month, day, hhmmss)
 	//time.Sleep(time.Second)
 
-	log.Printf("Tiles gathered : %d\n", count_tiles(folders))
+	log.Printf("Tiles gathered : %d\n", countTiles(folders))
 	log.Println("Tile located  : " + folders.tiles)
 
 	return true
@@ -209,22 +208,22 @@ func scrape(year, month, day, hhmmss uint) bool {
 //=============================================
 //        FULL-DISC
 //=============================================
-func build_full_disc(sa UserInput, tool string) bool {
+func buildFullDisc(sa UserInput, tool string) bool {
 	var runwith string
 
 	ymd := fmt.Sprintf("%04d%02d%02d", sa.year, sa.month, sa.day)
 	hhmmss := fmt.Sprintf("%06d", sa.hhmmss)
 
-	if tool == "go" {
-		runwith = fmt.Sprintf("cd gostitch;go run stitchers/gostitch/main.go %s %s", ymd, hhmmss)
-		fmt.Println("RANWITH: ", runwith)
-		run_stitcher(sa, ymd, hhmmss, runwith)
-		return true
-	}
+	// if tool == "go" {
+	// 	runwith = fmt.Sprintf("cd gostitch;go run stitchers/gostitch/main.go %s %s", ymd, hhmmss)
+	// 	fmt.Println("RANWITH: ", runwith)
+	// 	runStitcher(sa, ymd, hhmmss, runwith)
+	// 	return true
+	// }
 	if tool == "python" {
 		runwith = fmt.Sprintf("python3 stitcher.py %s %s", ymd, hhmmss)
 		fmt.Println("RANWITH: ", runwith)
-		run_stitcher(sa, ymd, hhmmss, runwith)
+		runStitcher(sa, ymd, hhmmss, runwith)
 		return true
 	} else {
 		log.Print("Invalid tool, valid options: python, go")
@@ -232,7 +231,7 @@ func build_full_disc(sa UserInput, tool string) bool {
 	}
 
 }
-func run_stitcher(sa UserInput, ymd, hhmmss, runwith string) bool {
+func runStitcher(sa UserInput, ymd, hhmmss, runwith string) bool {
 	cmd := exec.Command(runwith, ymd, hhmmss)
 	out, err := cmd.Output()
 
@@ -254,9 +253,9 @@ func main() {
 	fmt.Println("Himawari")
 	fmt.Println(os.Getwd())
 
-	sa := parse_params_from_sysargs()
+	sa := parseParamsFromSYSArgs()
 	scrape(sa.year, sa.month, sa.day, sa.hhmmss)
-	build_full_disc(sa, "go")
+	buildFullDisc(sa, "python") //NOTE: The go one has been removed from this version -- the gocv module isn't stable enough for this application...
 
 	elapsed := time.Since(start)
 
