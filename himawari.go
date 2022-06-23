@@ -209,7 +209,6 @@ func scrape(year, month, day, hhmmss uint) bool {
 //        FULL-DISC
 //=============================================
 func buildFullDisc(sa UserInput, tool string) bool {
-	var runwith string
 
 	ymd := fmt.Sprintf("%04d%02d%02d", sa.year, sa.month, sa.day)
 	hhmmss := fmt.Sprintf("%06d", sa.hhmmss)
@@ -221,9 +220,7 @@ func buildFullDisc(sa UserInput, tool string) bool {
 	// 	return true
 	// }
 	if tool == "python" {
-		runwith = fmt.Sprintf("python scripts/stitcher.py %s %s", ymd, hhmmss)
-		fmt.Println("RANWITH: ", runwith)
-		runStitcher(runwith)
+		runStitcher("scripts/stitcher.py", ymd, hhmmss)
 		return true
 	} else {
 		log.Print("Invalid tool, valid options: python, go")
@@ -231,8 +228,8 @@ func buildFullDisc(sa UserInput, tool string) bool {
 	}
 
 }
-func runStitcher(runwith string) bool {
-	cmd := exec.Command(runwith)
+func runStitcher(stitcher, ymd, hhmmss string) bool {
+	cmd := exec.Command("python", stitcher, ymd, hhmmss)
 	out, err := cmd.Output()
 
 	if err != nil {
