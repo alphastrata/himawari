@@ -2,10 +2,7 @@ module himawari
 
 go 1.17
 
-require (
-	github.com/schollz/progressbar/v3 v3.8.5
-	gocv.io/x/gocv v0.29.0
-)
+require github.com/schollz/progressbar/v3 v3.8.5
 
 require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
