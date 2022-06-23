@@ -16,23 +16,18 @@ def check(im):
 
 if __name__ == "__main__":
     # get yymmdd and hhmmss from sys args (if any provided)
-    yymmdd = sys.argv[1] if len(sys.argv) > 1 else "20190608"
-    hhmmss = sys.argv[2] if len(sys.argv) > 2 else "040000"
+    yymmdd = sys.argv[1] if len(sys.argv) > 1 else exit("Supply a valid YYMMDD string.")
+    hhmmss = sys.argv[2] if len(sys.argv) > 2 else exit("Supply a valid HHMMSS string.")
 
     completed = f"completed/{yymmdd}/"
     tiles_path = f"tiles/{yymmdd}/{hhmmss}/"
 
-    idx = 0
-
-    tiles_sorted = get_images_list_comp(tiles_path)
-    print("tiles found:", len(tiles_sorted))
-
     r2b = lambda rgb: (cv2.imread(rgb))
     verticals = []
 
-    for ridx in tqdm(range(20)):
+    for cidx in tqdm(range(20)):
         outvec = []
-        for cidx in range(20):
+        for ridx in range(20):
             tilepath = f"{os.path.join(tiles_path)}{hhmmss}R{ridx}_C{cidx}.png"
             outvec.append(r2b(tilepath))
 
