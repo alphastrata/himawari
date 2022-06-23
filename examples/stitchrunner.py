@@ -172,7 +172,7 @@ if __name__ == "__main__":
     while START_DATE <= END_DATE:
         for hms in TIMESTAMP_LIST:
             pyargs_complete = f"{YEAR}{MONTH:0>2}{START_DATE:0>2} {hms}"
-            os.system("go run main.go " + pyargs_complete)
+            os.system(f"go run main.go {pyargs_complete}")
             logging.info(f"RAN FOR: {pyargs_complete}")
 
         START_DATE += 1
