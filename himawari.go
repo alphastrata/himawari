@@ -221,9 +221,9 @@ func buildFullDisc(sa UserInput, tool string) bool {
 	// 	return true
 	// }
 	if tool == "python" {
-		runwith = fmt.Sprintf("python3 stitcher.py %s %s", ymd, hhmmss)
+		runwith = fmt.Sprintf("python scripts/stitcher.py %s %s", ymd, hhmmss)
 		fmt.Println("RANWITH: ", runwith)
-		runStitcher(sa, ymd, hhmmss, runwith)
+		runStitcher(runwith)
 		return true
 	} else {
 		log.Print("Invalid tool, valid options: python, go")
@@ -231,8 +231,8 @@ func buildFullDisc(sa UserInput, tool string) bool {
 	}
 
 }
-func runStitcher(sa UserInput, ymd, hhmmss, runwith string) bool {
-	cmd := exec.Command(runwith, ymd, hhmmss)
+func runStitcher(runwith string) bool {
+	cmd := exec.Command(runwith)
 	out, err := cmd.Output()
 
 	if err != nil {

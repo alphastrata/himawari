@@ -10,10 +10,6 @@ def get_images_list_comp(path="tiles"):
     return sorted(list(os.listdir(path)), key=lambda c: c[-10:])
 
 
-def build_from_stack(stack, filename):
-    return cv2.hconcat(stack)
-
-
 def check(im):
     return im.shape[0] == im.shape[1]
 
@@ -29,23 +25,25 @@ if __name__ == "__main__":
     idx = 0
 
     tiles_sorted = get_images_list_comp(tiles_path)
+    print("tiles found:", len(tiles_sorted))
 
     r2b = lambda rgb: (cv2.imread(rgb))
     verticals = []
 
-    for idx in tqdm(range(20)):
+    for ridx in tqdm(range(20)):
         outvec = []
-        row_idx = f"R{idx}.png"
+        for cidx in range(20):
+            tilepath = f"{os.path.join(tiles_path)}{hhmmss}R{ridx}_C{cidx}.png"
+            outvec.append(r2b(tilepath))
 
-        for i in range(len(tiles_sorted)):
-            if row_idx in tiles_sorted[i]:
-                img = r2b(os.path.join(tiles_path, tiles_sorted[i]))
-                outvec.append(img)
-
-        filename = f"{row_idx}"
-
-        verticals.append(build_from_stack(outvec, filename))
+        verticals.append(cv2.hconcat(outvec))
 
     # write out our completed image
     vstack = cv2.vconcat(verticals)
-    cv2.imwrite(os.path.join(completed, f"{hhmmss}.png"), vstack)
+
+    outname = tiles_path.split("/")[-1]
+    resname = os.path.join(completed, f"full-disc {hhmmss}.jpg")
+
+    cv2.imwrite(f"{resname}", vstack)
+
+    exit(0)
