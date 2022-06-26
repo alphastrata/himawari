@@ -78,7 +78,7 @@ func saveImage(filename string, img gocv.Mat) bool {
 	return true
 }
 
-func CheckError(e error) {
+func checkError(e error) {
 	if e != nil {
 		panic(e)
 	}
@@ -93,7 +93,7 @@ func readinTiles(dir string) []Tile {
 		return nil
 	}
 	files, e := ioutil.ReadDir(dir)
-	CheckError(e)
+	checkError(e)
 
 	var tiles []Tile
 
@@ -103,12 +103,12 @@ func readinTiles(dir string) []Tile {
 		c := strings.Replace(strings.Split(newname, "_")[1], ".png", "", -1)
 		c = (strings.Replace(c, "C", "", -1))
 		col, e := strconv.Atoi(c)
-		CheckError(e)
+		checkError(e)
 
 		r := strings.Split(newname, "_")[0][6:]
 		r = (strings.Replace(r, "R", "", -1))
 		row, e := strconv.Atoi(r)
-		CheckError(e)
+		checkError(e)
 
 		tiles = append(tiles,
 			Tile{
@@ -247,12 +247,13 @@ func main() {
 			BarStart:      "[",
 			BarEnd:        "]",
 		}))
-	// Note the location your terminal is at when you run this seems to be important for these relative ../../s to work.
-	filename_dir := filepath.Join("../", "completed", fmt.Sprintf("%d%02d%02d/", dt.year, dt.month, dt.day))
-	filename_out := filepath.Join(filename_dir, fmt.Sprintf("/fulldisc-%d-%02d-%d %06d.png", dt.year, dt.month, dt.day, dt.hhmmss/100))
-	tile_dir := filepath.Join("../", "tiles", fmt.Sprintf("%d%02d%02d/%06d", dt.year, dt.month, dt.day, dt.hhmmss))
 
-	// NOTE: Blocking and concurrent versions of this func are available
+	// Note the location your terminal is at when you run this seems to be important for these relative ../../s to work.
+	// If running from the himawari dir, the ../ are not required, if running from the gostitch one -- they are!
+	filename_dir := filepath.Join("completed", fmt.Sprintf("%d%02d%02d/", dt.year, dt.month, dt.day))
+	filename_out := filepath.Join(filename_dir, fmt.Sprintf("/fulldisc-%d-%02d-%d %06d.jpg", dt.year, dt.month, dt.day, dt.hhmmss/100))
+	tile_dir := filepath.Join("tiles", fmt.Sprintf("%d%02d%02d/%06d", dt.year, dt.month, dt.day, dt.hhmmss))
+
 	processFullDiscs(tile_dir, filename_out, false)
 	log.Println("Done!")
 	bar.Finish()
